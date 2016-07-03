@@ -5,15 +5,15 @@ def xor(a, b):
 
 def rand(n):
     assert type(n) == int
-    return map(ord, os.urandom(n))
+    return bytearray(os.urandom(n))
 
 def explode(bstr):
-    assert type(bstr) == str
+    assert type(bstr) in (bytearray, str, bytes, unicode)
     return map(ord, bstr)
 
 def implode(ilst):
     """ Implodes a list of integers into a single binary string """
-    return ''.join(map(chr, ilst))
+    return bytearray(ilst)
 
 def chop(ilst, size):
     """ Chops an integer list into fixed size blocks

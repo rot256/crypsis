@@ -1,2 +1,5 @@
 *.pyc
+.hypothesis/*
+.cache/*
 todo.md
+crypsis.egg-info/
