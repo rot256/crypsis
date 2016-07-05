@@ -1,5 +1,8 @@
 import os
 
+def hex(b):
+    return str(b).encode('hex')
+
 def xor(a, b):
     return map(lambda (x, y): x^y, zip(a, b))
 
