@@ -4,7 +4,7 @@ def hex(b):
     return str(b).encode('hex')
 
 def xor(a, b):
-    return map(lambda (x, y): x^y, zip(a, b))
+    return bytearray(map(lambda (x, y): x^y, zip(a, b)))
 
 def rand(n):
     assert type(n) == int
