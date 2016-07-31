@@ -14,3 +14,9 @@ class InvalidPadding(Exception):
 
 class NoCandidateFound(Exception):
     pass
+
+class NoSolution(Exception):
+    pass
+
+class MultipleSolutions(Exception):
+    pass

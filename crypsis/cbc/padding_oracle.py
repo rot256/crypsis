@@ -15,6 +15,8 @@ and False otherwise.
 2: A function to generate padding
 The function will be given a message and should return
 the padding bytes for said message (not the resulting message).
+
+
 """
 
 def decrypt(iv, block, query, padding, threads = 1):
@@ -68,7 +70,6 @@ def decrypt(iv, block, query, padding, threads = 1):
     plain = bytearray()
     for p in range(blocksize - 1, -1, -1):
         # Search for correct padding
-        logger.debug('Decrypting index %d', p)
         found = search(trial, gen_queries(nulls, p), threads)
         if found is None:
             logger.error('Failed to decrypt byte')
@@ -81,7 +82,7 @@ def decrypt(iv, block, query, padding, threads = 1):
         char = byte ^ pad[p - blocksize] ^ iv[p]
         nulls = bytearray([null]) + nulls
         plain = bytearray([char]) + plain
-        logger.debug('Found 0x%02x' % char)
+        logger.info('Decrypted index %d to 0x%02x', p, char)
     return plain
 
 def decrypt_msg(msg, query, padding, iv=None, blocksize=16, threads=1):
