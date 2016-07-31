@@ -1,5 +1,4 @@
 *.pyc
-todo.md
 crypsis.egg-info/
 .cache/*
 
