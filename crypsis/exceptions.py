@@ -9,6 +9,9 @@ def essert(cond, exc):
     if not cond:
         raise exc
 
+class InvalidResponse(Exception):
+    pass
+
 class InvalidPadding(Exception):
     pass
 

@@ -1,12 +1,13 @@
 from gmpy2 import next_prime, is_prime
 from random import choice
+from os import urandom
 
 from threading import Lock
 
+from crypsis import logger, csprng
 from crypsis.exceptions import essert, NoSolution
-from crypsis import logger
 
-### Prime caching ###
+### Prime (lazy) cache ###
 
 class PrimeCache:
     def __init__(self, INIT_BOUND=2**18):
@@ -18,7 +19,18 @@ class PrimeCache:
         self.lock = Lock()
         self.init = INIT_BOUND
 
-    def expand(self, n):
+    def expand_with(self, n):
+        """
+        Expands the cache with n new primes
+        """
+        self.lock.acquire()
+        while n > 0:
+            self.bound = next_prime(self.bound)
+            self.cache.append(self.bound)
+            n -= 1
+        self.lock.release()
+
+    def expand_to(self, n):
         """
         Expand the prime cache to all primes <= n
         """
@@ -34,14 +46,14 @@ class PrimeCache:
         """
         Get all primes in the cache to <= n
         """
-        self.expand(self.init)
+        self.expand_to(self.init)
         self.lock.acquire()
         bot = 0
         top = len(self.cache)
         while 1:
             if top - bot <= 1:
                 break
-            test = (top + bot) / 2
+            test = (top + bot) // 2
             if self.cache[test] > n:
                 top = test
                 continue
@@ -55,14 +67,31 @@ class PrimeCache:
         Get all primes <= n
         and add these to the cache
         """
-        self.expand(n)
+        self.expand_to(n)
         return self.get_some(n)
 
 primecache = PrimeCache()
 
-### Specially crafted primes ###
+### Primes generation ###
 
-def smooth_prime(min_val, max_val=None, b=2**16, exclude=[], unique=True):
+def random(bitlen, min_len=None):
+    while 1:
+        can = csprng.getrandbits(bitlen) | 1
+        if min_len is not None and bitlen(can) < min_len:
+            continue
+        if is_prime(can):
+            return can
+
+
+def range(min_val, max_val=1<<16):
+    if max_val < min_val:
+        max_val = min_val * 2
+    while 1:
+        can = csprng.randrange(min_val, max_val)
+        if is_prime(can):
+            return can
+
+def smooth(min_val, max_val=None, b=2**16, exclude=set([]), unique=False):
     """
     Generates a prime p where p-1 is b smooth
     (not the prime itself -- which would be pretty useless)
@@ -80,9 +109,8 @@ def smooth_prime(min_val, max_val=None, b=2**16, exclude=[], unique=True):
     essert(max_val is None or max_val > min_val, NoSolution)
     essert(2 not in exclude, NoSolution)
     primes = primecache.get_some(b)
-    primes = list(set(primes) | set(exclude))
+    primes = filter(lambda x: x not in exclude, primes)
 
-    # Do the bruteforce
     while 1:
         # Generate random smooth number
         n = 2
@@ -94,11 +122,11 @@ def smooth_prime(min_val, max_val=None, b=2**16, exclude=[], unique=True):
             n *= p
             f.add(p)
 
-        # Check if candidate
+        # Check if prime
         if not is_prime(n + 1):
             continue
         if max_val is None:
             break
         if n + 1 <= max_val:
             break
-    return n + 1, list(f)
+    return int(n + 1), sorted(f)
