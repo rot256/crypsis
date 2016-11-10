@@ -15,20 +15,8 @@ def product(xs):
         n *= x
     return n
 
-# Convert n to binary (without prefix)
-def bin(n):
-    o = ''
-    while n:
-        o += '1' if n & 1 else '0'
-        n >>= 1
-    return o[::-1]
-
-# Convert n to hex (without prefix)
-def hex(n):
-    return '%x' % n
-
 # Returns the bit length of n
-def bitlen(n):
+def bit_size(n):
     """Returns the length in bits of an integer.
     
     Args:
@@ -39,10 +27,17 @@ def bitlen(n):
         of bits required to store the value
         return 0 for n = 0.
     """
-    assert n >= 0
     l = 0
     while n:
         n >>= 1
+        l += 1
+    return l
+
+# Returns the byte length of n
+def byte_size(n):
+    l = 0
+    while n:
+        n >>= 8
         l += 1
     return l
 
@@ -128,3 +123,12 @@ def hing(pairs):
         z = pow(f, e)
         new.append((y % z, z))
     return crt(new)
+
+
+# Calculates n / d and rounds up
+def div_ceil(num, div):
+    return -(-num // div)
+
+# Calculates n / d and rounds down
+def div_floor(num, div):
+    return num // div
