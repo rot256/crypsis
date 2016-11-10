@@ -5,9 +5,10 @@ from os import urandom
 from threading import Lock
 
 from crypsis import logger, csprng
+from crypsis.encode import bit_size
 from crypsis.exceptions import essert, NoSolution
 
-### Prime (lazy) cache ###
+### Lazy list of primes ###
 
 class PrimeCache:
     def __init__(self, INIT_BOUND=2**18):
@@ -75,13 +76,29 @@ primecache = PrimeCache()
 ### Primes generation ###
 
 def random(bitlen, min_len=None):
+    if min_len == None:
+        min_len = bitlen
     while 1:
         can = csprng.getrandbits(bitlen) | 1
-        if min_len is not None and bitlen(can) < min_len:
-            continue
         if is_prime(can):
             return can
+        if bit_size(can) < min_len:
+            continue
 
+def safe(bitlen):
+    """
+    Generate a safe prime of bitlen bits
+    """
+    mask = 1 | 2**bitlen
+    while 1:
+        can = csprng.getrandbits(bitlen - 1) | mask
+        if not is_prime(can):
+            continue
+        p = can * 2 + 1
+        if not is_prime(p):
+            continue
+        if bit_size(p) >= min_len:
+            return p
 
 def range(min_val, max_val=1<<16):
     if max_val < min_val:
@@ -103,24 +120,29 @@ def smooth(min_val, max_val=None, b=2**16, exclude=set([]), unique=False):
     :unique: Should all prime factors of p-1 be unique?
     :return: A prime number p with p-1 begin b-smooth 
              and a list of prime factors (for p-1)
+
+    TODO: Fix this doc string (use google format)
     """
 
-    # Acquire a list of possible factors
+    # Acquire a list of small primes
     essert(max_val is None or max_val > min_val, NoSolution)
     essert(2 not in exclude, NoSolution)
     primes = primecache.get_some(b)
     primes = filter(lambda x: x not in exclude, primes)
-
+    
     while 1:
         # Generate random smooth number
         n = 2
-        f = set([2])
+        f = {2: 1}
         while n <= min_val:
             p = choice(primes)
-            if unique and p in f:
-                continue
+            if p in f:
+                if unique:
+                    continue
+                f[p] += 1
+            else:
+                f[p] = 1
             n *= p
-            f.add(p)
 
         # Check if prime
         if not is_prime(n + 1):
@@ -129,4 +151,25 @@ def smooth(min_val, max_val=None, b=2**16, exclude=set([]), unique=False):
             break
         if n + 1 <= max_val:
             break
-    return int(n + 1), sorted(f)
+
+    # Expand dict into list
+    facs = []
+    for k, v in f.items():
+        facs += [int(k)] * v
+    return int(n + 1), sorted(facs)
+
+### Prime factors ###
+
+from primefac import primefac
+
+def factors(num):
+    """
+    Decomposes a number into a list of its prime factors
+    
+    Args:
+        num (int): An integer to factor
+
+    Returns:
+        list: A list of prime factors
+    """
+    return map(lambda x: int(x), primefac(num))

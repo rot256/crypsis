@@ -11,7 +11,8 @@ FOR A NUMBER OF REASONS.
 
 from gmpy2 import invert
 from random import randrange, getrandbits
-from crypsis.math import primes, bit_size
+from crypsis.math import primes
+from crypsis.encode import bit_size
 from crypsis import logger
 
 def generate(n=2048, e=65537):
@@ -24,7 +25,10 @@ def generate(n=2048, e=65537):
     q = primes.random(mq)
     if bit_size(p * q) != n:
         return generate(n, e)
-    d = invert(e, (p-1) * (q-1))
+    try:
+        d = invert(e, (p-1) * (q-1))
+    except:
+        return generate(n, e)
     N = p * q
     return (p, q, d, N), (e, N)
 
