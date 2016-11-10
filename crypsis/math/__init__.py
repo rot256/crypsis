@@ -3,9 +3,7 @@ Contains
 
 """
 
-
 # Calculate the product of a list
-# Like sum -- why is this not a buildin?
 def product(xs):
     n = 1
     for x in xs:
@@ -25,9 +23,25 @@ def hex(n):
     return '%x' % n
 
 # Returns the bit length of n
-def bitlen(n):
+def bit_size(n):
     l = 0
     while n:
         n >>= 1
         l += 1
     return l
+
+# Returns the byte length of n
+def byte_size(n):
+    l = 0
+    while n:
+        n >>= 8
+        l += 1
+    return l
+
+# Calculates n / d and rounds up
+def div_ceil(num, div):
+    return -(-num // div)
+
+# Calculates n / d and rounds down
+def div_floor(num, div):
+    return num // div

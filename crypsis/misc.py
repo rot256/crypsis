@@ -1,14 +1,14 @@
 import os
 
-def hex(b):
-    return str(b).encode('hex')
-
-def xor(a, b):
-    return bytearray(map(lambda (x, y): x^y, zip(a, b)))
-
-def rand(n):
-    assert type(n) == int
-    return bytearray(os.urandom(n))
+def random(size, exclude=[]):
+    out = bytearray([])
+    exclude = set(exclude)
+    assert isinstance(size, int)
+    while len(out) < size:
+        byte = os.urandom(1)
+        if byte not in exclude:
+            out.append(byte)
+    return out
 
 def explode(bstr):
     assert type(bstr) in (bytearray, str, bytes, unicode)

@@ -11,7 +11,7 @@ FOR A NUMBER OF REASONS.
 
 from gmpy2 import invert
 from random import randrange, getrandbits
-from crypsis.math import primes, bitlen
+from crypsis.math import primes, bit_size
 from crypsis import logger
 
 def generate(n=2048, e=65537):
@@ -22,20 +22,26 @@ def generate(n=2048, e=65537):
     mq = mp + 1 if n % 2 else mp
     p = primes.random(mp)
     q = primes.random(mq)
-    if bitlen(p * q) != n:
+    if bit_size(p * q) != n:
         return generate(n, e)
-    print 'RSA p: 0x%x' % p
-    print 'RSA q: 0x%x' % q
     d = invert(e, (p-1) * (q-1))
     N = p * q
-    return (d, N), (e, N)
+    return (p, q, d, N), (e, N)
+
+def decrypt_crt(m, sk):
+    p, q, d, N = sk
+    mp = pow(m, d, p)
+    mq = pow(m, d, q)
+    rp = invert(p, q)
+    rq = invert(q, p)
+    return (mp * q * rq + mq * p * rp) % N
 
 def encrypt(m, pk):
     e, N = pk
     return pow(m, e, N)
 
 def decrypt(m, sk):
-    d, N = sk
+    _, _, d, N = sk
     return pow(m, d, N)
 
 def sign(m, sk):
