@@ -17,7 +17,7 @@ def product(xs):
     return n
 
 def legendre_symbol(n, p):
-    sym = pow(n, (p - 1) / 2, p)
+    sym = pow(n, (p - 1) / 2)
     if sym == 1:
         return 1
     if sym == p - 1:
@@ -29,7 +29,7 @@ def sqrt_mod(n, p):
     """Calculates the square root of m mod p (a prime)
 
     Args:
-        m (int): Quadratic residue (reduced mod p first)
+        m (int): Quadratic residue
         p (int): Prime number
 
     Returns:
@@ -37,15 +37,14 @@ def sqrt_mod(n, p):
     """
 
     # Checks
-    n = n % p
-    assert is_prime(p), 'p not prime'
-    assert legendre_symbol(n, p) == 1, 'n not a quadratic residue'
+    assert is_prime(p)
+    assert legendre_symbol(n, p) == 1
 
     # Special cases
     if n == 0:
         return 0
     if p == 2:
-        return int(n)
+        return n
 
     # Check that n is a quadratic residue
     ls = lambda a: pow(a, (p-1) / 2, p)
@@ -77,7 +76,7 @@ def sqrt_mod(n, p):
     while 1:
         if t == 1:
             assert R**2 % p == n % p
-            return int(R)
+            return R
         for i in xrange(1, M):
             if pow(t, 2**i, p) == 1:
                 break

@@ -78,8 +78,9 @@ primecache = PrimeCache()
 def random(bitlen, min_len=None):
     if min_len == None:
         min_len = bitlen
+    mask = 1 << (bitlen - 1) | 1
     while 1:
-        can = csprng.getrandbits(bitlen) | 1
+        can = csprng.getrandbits(bitlen) | mask
         if is_prime(can):
             return can
         if bit_size(can) < min_len:
@@ -89,15 +90,15 @@ def safe(bitlen):
     """
     Generate a safe prime of bitlen bits
     """
-    mask = 1 | 2**bitlen
+    mask = 1 | (1 << (bitlen - 2))
     while 1:
-        can = csprng.getrandbits(bitlen - 1) | mask
+        can = csprng.getrandbits(bitlen - 2) | mask
         if not is_prime(can):
             continue
         p = can * 2 + 1
         if not is_prime(p):
             continue
-        if bit_size(p) >= min_len:
+        if bit_size(p) == bitlen:
             return p
 
 def range(min_val, max_val=1<<16):
