@@ -1,7 +1,12 @@
 # Crypsis
-A cryptoanalytical framework in python2
 
-Crypsis is focused on practical attacks against cryptografic systems and being useful in Capture The Flag tournaments. The interface aims to be as simple as possible while still relatively flexible, below an example of a padding oracle attack:
+A Crypto CTF framework for python2.
+I found myself often rewriting the same code over and over for CTFs, hence crypsis.
+The goal is to be a little like [Pwntools](https://github.com/Gallopsled/pwntools)
+by with a focus on crypto challenges (as oppose to binary reversing/exploit).
+
+The library aims to contain useful helper functions and even some full attacks,
+below an example of a padding oracle attack:
 
 ```python
 import requests
@@ -20,4 +25,5 @@ def query(m):
 print 'Plaintext:', oracle.decrypt_msg(msg, query, threads = 4)
 ```
 
-This project is under active development, if you have any new attacks (or old CTF scripts) you wish to add you are more than welcome to contribute.
+This project is under active development, if you have any new attacks (or old CTF scripts) 
+you wish to add you are more than welcome to contribute.
